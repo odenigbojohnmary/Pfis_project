@@ -1,7 +1,7 @@
 # JmZOps
 
 **A public status-page / incident-communication system, in the style of status.io and Atlassian Statuspage.**
-Built with Python, Flask, MySQL, and Vanilla JavaScript.
+Built with Node.js, Express.js, MySQL, and Vanilla JavaScript.
 
 ---
 
