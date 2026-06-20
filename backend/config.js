@@ -14,9 +14,4 @@ const DB_CONFIG = {
   database: process.env.DB_NAME || "statuswatch_db",
 };
 
-const TEST_DB_CONFIG = {
-  ...DB_CONFIG,
-  database: process.env.DB_TEST || "statuswatch_test_db",
-};
-
-module.exports = { DB_CONFIG, TEST_DB_CONFIG };
+module.exports = { DB_CONFIG };
