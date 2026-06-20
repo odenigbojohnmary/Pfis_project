@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JmZOps</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>📡 JmZOps</h1>
+  <nav>
+    <button id="navPublic" class="active">Status Page</button>
+    <button id="navAdmin">Admin Panel</button>
+  </nav>
+</header>
+
+<main>
+  <!-- PUBLIC STATUS PAGE -->
+  <section id="tabPublic" class="tab active">
+    <div id="overallBanner" class="overall-banner banner-operational">
+      <span class="status-dot operational"></span>
+      <span id="overallText">Checking system status…</span>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Components</h2>
+      <div id="componentList">Loading…</div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Active Incidents</h2>
+      <div id="activeIncidentList"><small class="muted">No active incidents.</small></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Upcoming Maintenance</h2>
+      <div id="maintenanceList"><small class="muted">Nothing scheduled.</small></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Subscribe to Updates</h2>
+      <form id="subscribeForm" class="inline">
+        <input type="email" id="subscribeEmail" placeholder="you@example.com" required>
+        <button type="submit" class="primary">Subscribe</button>
+      </form>
+      <small class="muted" id="subscribeMsg"></small>
+    </div>
+  </section>
+
+  <!-- ADMIN PANEL -->
+  <section id="tabAdmin" class="tab">
+    <div class="grid" id="dashboardStats"></div>
+
+    <div class="card admin-section">
+      <h2>Components</h2>
+      <form id="componentForm" class="inline">
+        <input type="text" id="compName" placeholder="Name" required>
+        <input type="text" id="compGroup" placeholder="Group (e.g. Core)" value="General">
+        <select id="compStatus">
+          <option value="operational">Operational</option>
+          <option value="degraded">Degraded</option>
+          <option value="partial_outage">Partial Outage</option>
+          <option value="major_outage">Major Outage</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+        <button type="submit" class="primary">Add Component</button>
+      </form>
+      <table id="componentTable"><thead><tr><th>Name</th><th>Group</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="card admin-section">
+      <h2>Incidents</h2>
+      <form id="incidentForm" class="inline">
+        <input type="text" id="incTitle" placeholder="Incident title" required>
+        <select id="incImpact">
+          <option value="minor">Minor</option>
+          <option value="major">Major</option>
+          <option value="critical">Critical</option>
+        </select>
+        <input type="text" id="incMessage" placeholder="Initial message" style="flex:1;">
+      </form>
+      <div class="checkbox-list" id="incComponentChecks"></div>
+      <button id="createIncidentBtn" class="primary" style="margin-top:8px;">Create Incident</button>
+      <div id="incidentList" style="margin-top:14px;"></div>
+    </div>
+
+    <div class="card admin-section">
+      <h2>Scheduled Maintenance</h2>
+      <form id="maintenanceForm" class="inline">
+        <input type="text" id="maintTitle" placeholder="Title" required>
+        <input type="datetime-local" id="maintStart" required>
+        <input type="datetime-local" id="maintEnd" required>
+        <button type="submit" class="primary">Schedule</button>
+      </form>
+      <table id="maintenanceTable"><thead><tr><th>Title</th><th>Start</th><th>End</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
