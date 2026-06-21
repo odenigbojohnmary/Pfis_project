@@ -112,7 +112,7 @@ async function initDB(config) {
     ) ENGINE=InnoDB
   `);
 
-  await conn.query(`
+  await dbconn.query(`
     CREATE TABLE IF NOT EXISTS notifications (
       id INT AUTO_INCREMENT PRIMARY KEY,
       subscriber_id INT NOT NULL,
@@ -126,7 +126,7 @@ async function initDB(config) {
     ) ENGINE=InnoDB
   `);
 
-  await conn.end();
+  await dbconn.end();
 }
 
 module.exports = { dbconnPool, initDB };

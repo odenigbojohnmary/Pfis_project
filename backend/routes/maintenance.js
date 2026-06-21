@@ -7,7 +7,7 @@
 
 const express = require("express");
 const router = express.Router();
-const { notifySubscribers } = require("../notify");
+// const { notifySubscribers } = require("../notify");
 
 async function affectedComponents(db, maintenanceId) {
   const [rows] = await db.query(

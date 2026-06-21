@@ -1,0 +1,46 @@
+name: Deploy JmZOps Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Application Dependencies
+        run: npm ci
+
+      - name: Configure SSH for GCP VM
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCP_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.GCP_VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to GCP VM
+        run: |
+          ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_HOST }} << 'EOF'
+
+            cd /var/www/Pfis_project/backend
+
+            git fetch origin
+            git reset --hard origin/main
+
+            npm ci --production
+
+            pm2 restart jmzops || pm2 start server.js --name jmzops
+
+            pm2 save
+
+          EOF
