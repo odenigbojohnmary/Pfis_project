@@ -1,12 +1,80 @@
 /**
  * app.js
  * ------
- * All frontend logic for StatusWatch. Every data operation goes through
- * fetch() calls to the Flask REST API — no full page reloads, per the
+ * All frontend logic for JMZOps Every data operation goes through
  * assignment's API-driven architecture requirement.
  */
 
 const API = "/api";
+
+// ------------------------------------------------------------------
+// Auth — JWT stored in memory + localStorage so a refresh doesn't log
+// the staff member out. Public status/uptime pages never need this.
+// ------------------------------------------------------------------
+let authToken = localStorage.getItem("sw_token") || null;
+let currentStaff = JSON.parse(localStorage.getItem("sw_staff") || "null");
+
+function setAuth(token, staff) {
+  authToken = token;
+  currentStaff = staff;
+  if (token) {
+    localStorage.setItem("sw_token", token);
+    localStorage.setItem("sw_staff", JSON.stringify(staff));
+  } else {
+    localStorage.removeItem("sw_token");
+    localStorage.removeItem("sw_staff");
+  }
+  renderAuthState();
+}
+
+function authFetch(url, options = {}) {
+  const headers = { ...(options.headers || {}) };
+  if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+  return fetch(url, { ...options, headers });
+}
+
+function renderAuthState() {
+  const loginCard = document.getElementById("loginCard");
+  const adminContent = document.getElementById("adminContent");
+  const whoAmI = document.getElementById("whoAmI");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const staffSection = document.getElementById("staffSection");
+
+  const loggedIn = !!authToken && !!currentStaff;
+  loginCard.style.display = loggedIn ? "none" : "block";
+  adminContent.style.display = loggedIn ? "block" : "none";
+  logoutBtn.style.display = loggedIn ? "inline-block" : "none";
+  whoAmI.innerHTML = loggedIn
+    ? `${currentStaff.name} <span class="role-badge">${currentStaff.role.replace("_", " ")}</span>`
+    : "";
+  if (staffSection) staffSection.style.display = currentStaff?.role === "super_admin" ? "block" : "none";
+
+  if (loggedIn) loadAdminPanel();
+}
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  const res = await fetch(`${API}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  const msg = document.getElementById("loginMsg");
+  if (!res.ok) {
+    msg.textContent = data.error || "Login failed";
+    return;
+  }
+  msg.textContent = "";
+  document.getElementById("loginForm").reset();
+  setAuth(data.token, data.staff);
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  setAuth(null, null);
+});
 
 // ------------------------------------------------------------------
 // Tab navigation
@@ -26,7 +94,7 @@ function switchTab(name) {
   navPublic.classList.toggle("active", isPublic);
   navAdmin.classList.toggle("active", !isPublic);
   if (isPublic) loadPublicStatus();
-  else loadAdminPanel();
+  else renderAuthState();
 }
 
 // ------------------------------------------------------------------
@@ -103,6 +171,26 @@ async function loadPublicStatus() {
       maintList.appendChild(div);
     });
   }
+
+  // Asset uptime — public, no login required.
+  const uptimeList = document.getElementById("uptimeList");
+  const uptimeRes = await fetch(`${API}/public/uptime`);
+  const assets = await uptimeRes.json();
+  uptimeList.innerHTML = "";
+  if (assets.length === 0) {
+    uptimeList.innerHTML = "<small class='muted'>No assets configured yet.</small>";
+  } else {
+    assets.forEach((a) => {
+      const row = document.createElement("div");
+      row.className = "component-row";
+      row.innerHTML = `
+        <span>${a.name} <small class="muted">(${a.type.replace("_", " ")})</small></span>
+        <span class="badge ${a.status === "up" ? "operational" : a.status === "down" ? "major_outage" : "maintenance"}">${a.status}</span>
+        <small class="muted">24h: ${a.uptime_24h ?? "–"}% · 7d: ${a.uptime_7d ?? "–"}% · 30d: ${a.uptime_30d ?? "–"}%</small>
+      `;
+      uptimeList.appendChild(row);
+    });
+  }
 }
 
 document.getElementById("subscribeForm").addEventListener("submit", async (e) => {
@@ -130,11 +218,13 @@ async function loadAdminPanel() {
     loadMaintenanceAdmin(),
     loadSubscribersAdmin(),
     loadNotificationsAdmin(),
+    loadAssetsAdmin(),
+    loadStaffAdmin(),
   ]);
 }
 
 async function loadDashboard() {
-  const res = await fetch(`${API}/dashboard`);
+  const res = await authFetch(`${API}/dashboard`);
   const data = await res.json();
   const el = document.getElementById("dashboardStats");
   el.innerHTML = `
@@ -149,7 +239,7 @@ async function loadDashboard() {
 
 // --- Components ---
 async function loadComponentsAdmin() {
-  const res = await fetch(`${API}/components`);
+  const res = await authFetch(`${API}/components`);
   const components = await res.json();
   const tbody = document.querySelector("#componentTable tbody");
   tbody.innerHTML = "";
@@ -162,7 +252,7 @@ async function loadComponentsAdmin() {
       <td><button class="danger" data-id="${c.id}">Delete</button></td>
     `;
     tr.querySelector("button").addEventListener("click", async () => {
-      await fetch(`${API}/components/${c.id}`, { method: "DELETE" });
+      await authFetch(`${API}/components/${c.id}`, { method: "DELETE" });
       loadComponentsAdmin();
       loadIncidentComponentChecks();
     });
@@ -176,7 +266,7 @@ document.getElementById("componentForm").addEventListener("submit", async (e) =>
   const name = document.getElementById("compName").value;
   const group_name = document.getElementById("compGroup").value;
   const status = document.getElementById("compStatus").value;
-  await fetch(`${API}/components`, {
+  await authFetch(`${API}/components`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, group_name, status }),
@@ -186,7 +276,7 @@ document.getElementById("componentForm").addEventListener("submit", async (e) =>
 });
 
 async function loadIncidentComponentChecks() {
-  const res = await fetch(`${API}/components`);
+  const res = await authFetch(`${API}/components`);
   const components = await res.json();
   const container = document.getElementById("incComponentChecks");
   container.innerHTML = components
@@ -208,7 +298,7 @@ document.getElementById("createIncidentBtn").addEventListener("click", async () 
     return;
   }
 
-  await fetch(`${API}/incidents`, {
+  await authFetch(`${API}/incidents`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, impact, message, component_ids }),
@@ -222,7 +312,7 @@ document.getElementById("createIncidentBtn").addEventListener("click", async () 
 });
 
 async function loadIncidentsAdmin() {
-  const res = await fetch(`${API}/incidents`);
+  const res = await authFetch(`${API}/incidents`);
   const incidents = await res.json();
   const container = document.getElementById("incidentList");
   container.innerHTML = "";
@@ -248,7 +338,7 @@ async function loadIncidentsAdmin() {
       </form>
     `;
     div.querySelector('[data-action="delete"]').addEventListener("click", async () => {
-      await fetch(`${API}/incidents/${inc.id}`, { method: "DELETE" });
+      await authFetch(`${API}/incidents/${inc.id}`, { method: "DELETE" });
       loadIncidentsAdmin();
       loadDashboard();
     });
@@ -257,7 +347,7 @@ async function loadIncidentsAdmin() {
       const status = div.querySelector(`.status-select-${inc.id}`).value;
       const message = div.querySelector(`.msg-input-${inc.id}`).value;
       if (!message) return;
-      await fetch(`${API}/incidents/${inc.id}/updates`, {
+      await authFetch(`${API}/incidents/${inc.id}/updates`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, message }),
@@ -277,7 +367,7 @@ document.getElementById("maintenanceForm").addEventListener("submit", async (e) 
   const title = document.getElementById("maintTitle").value;
   const scheduled_start = document.getElementById("maintStart").value;
   const scheduled_end = document.getElementById("maintEnd").value;
-  await fetch(`${API}/maintenance`, {
+  await authFetch(`${API}/maintenance`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, scheduled_start, scheduled_end }),
@@ -288,7 +378,7 @@ document.getElementById("maintenanceForm").addEventListener("submit", async (e) 
 });
 
 async function loadMaintenanceAdmin() {
-  const res = await fetch(`${API}/maintenance`);
+  const res = await authFetch(`${API}/maintenance`);
   const rows = await res.json();
   const tbody = document.querySelector("#maintenanceTable tbody");
   tbody.innerHTML = "";
@@ -302,15 +392,166 @@ async function loadMaintenanceAdmin() {
       <td><button class="danger" data-id="${m.id}">Delete</button></td>
     `;
     tr.querySelector("button").addEventListener("click", async () => {
-      await fetch(`${API}/maintenance/${m.id}`, { method: "DELETE" });
+      await authFetch(`${API}/maintenance/${m.id}`, { method: "DELETE" });
       loadMaintenanceAdmin();
     });
     tbody.appendChild(tr);
   });
 }
 
+// --- Subscribers ---
+async function loadSubscribersAdmin() {
+  const res = await authFetch(`${API}/subscribers`);
+  const rows = await res.json();
+  const tbody = document.querySelector("#subscriberTable tbody");
+  tbody.innerHTML = "";
+  rows.forEach((s) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${s.email}</td>
+      <td>${new Date(s.created_at).toLocaleString()}</td>
+      <td><button class="danger" data-id="${s.id}">Remove</button></td>
+    `;
+    tr.querySelector("button").addEventListener("click", async () => {
+      await authFetch(`${API}/subscribers/${s.id}`, { method: "DELETE" });
+      loadSubscribersAdmin();
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// --- Notifications log ---
+async function loadNotificationsAdmin() {
+  const res = await authFetch(`${API}/notifications`);
+  const rows = await res.json();
+  const tbody = document.querySelector("#notificationTable tbody");
+  tbody.innerHTML = "";
+  rows.forEach((n) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${n.email}</td><td>${n.message}</td><td>${new Date(n.sent_at).toLocaleString()}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// --- Assets & uptime ---
+async function loadAssetsAdmin() {
+  const res = await authFetch(`${API}/assets`);
+  if (!res.ok) return; // viewer-safe: GET is allowed for any role, but guard anyway
+  const assets = await res.json();
+  const container = document.getElementById("assetList");
+  container.innerHTML = "";
+  const canEdit = currentStaff && ["editor", "super_admin"].includes(currentStaff.role);
+
+  if (assets.length === 0) {
+    container.innerHTML = "<small class='muted'>No assets yet.</small>";
+    return;
+  }
+
+  assets.forEach((a) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <strong>${a.name}</strong> <small class="muted">(${a.type.replace("_", " ")})</small>
+      <span class="badge ${a.status === "up" ? "operational" : a.status === "down" ? "major_outage" : "maintenance"}">${a.status}</span>
+      ${canEdit ? '<button class="danger" data-action="delete" style="float:right;">Delete</button>' : ""}
+      <div style="margin-top:6px;"><small class="muted">Uptime — 24h: ${a.uptime_24h ?? "–"}% · 7d: ${a.uptime_7d ?? "–"}% · 30d: ${a.uptime_30d ?? "–"}% · 90d: ${a.uptime_90d ?? "–"}%</small></div>
+      ${
+        canEdit
+          ? `<form class="inline check-form-${a.id}" style="margin-top:8px;">
+               <select class="check-status-${a.id}">
+                 <option value="up">Up</option>
+                 <option value="down">Down</option>
+               </select>
+               <button type="submit" class="primary">Log Manual Check</button>
+             </form>`
+          : ""
+      }
+    `;
+    if (canEdit) {
+      div.querySelector('[data-action="delete"]').addEventListener("click", async () => {
+        await authFetch(`${API}/assets/${a.id}`, { method: "DELETE" });
+        loadAssetsAdmin();
+      });
+      div.querySelector(`.check-form-${a.id}`).addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const status = div.querySelector(`.check-status-${a.id}`).value;
+        await authFetch(`${API}/assets/${a.id}/checks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+        loadAssetsAdmin();
+      });
+    }
+    container.appendChild(div);
+  });
+}
+
+document.getElementById("assetForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("assetName").value;
+  const type = document.getElementById("assetType").value;
+  const ping_url = document.getElementById("assetPingUrl").value || null;
+  await authFetch(`${API}/assets`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, type, ping_url }),
+  });
+  e.target.reset();
+  loadAssetsAdmin();
+});
+
+// --- Staff (super_admin only — backend rejects anyone else) ---
+async function loadStaffAdmin() {
+  if (!currentStaff || currentStaff.role !== "super_admin") return;
+  const res = await authFetch(`${API}/staff`);
+  if (!res.ok) return;
+  const staff = await res.json();
+  const tbody = document.querySelector("#staffTable tbody");
+  tbody.innerHTML = "";
+  staff.forEach((s) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${s.name}</td>
+      <td>${s.email}</td>
+      <td><span class="role-badge">${s.role.replace("_", " ")}</span></td>
+      <td><button class="danger" data-id="${s.id}">Delete</button></td>
+    `;
+    tr.querySelector("button").addEventListener("click", async () => {
+      const res = await authFetch(`${API}/staff/${s.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "Could not delete staff member");
+        return;
+      }
+      loadStaffAdmin();
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById("staffForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("staffName").value;
+  const email = document.getElementById("staffEmail").value;
+  const password = document.getElementById("staffPassword").value;
+  const role = document.getElementById("staffRole").value;
+  const res = await authFetch(`${API}/staff`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password, role }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.error || "Could not create staff member");
+    return;
+  }
+  e.target.reset();
+  loadStaffAdmin();
+});
 
 // ------------------------------------------------------------------
 // Initial load
 // ------------------------------------------------------------------
 loadPublicStatus();
+renderAuthState();
