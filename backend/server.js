@@ -13,6 +13,7 @@ const cors = require("cors");
 const path = require("path");
 const { dbconnPool, initDB } = require("./db");
 const { DB_CONFIG } = require("./config");
+const { startMonitor } = require("./monitor");
 
 const FRONTEND = path.join(__dirname, "..", "frontend");
 
@@ -48,6 +49,7 @@ async function createApp(config = DB_CONFIG) {
 async function start() {
   const app = await createApp(DB_CONFIG);
   const PORT = process.env.PORT || 5050;
+  startMonitor(app.locals.pool); // Start the monitoring process
   app.listen(PORT, () => {
     console.log(`[Server] JmZOps running at http://localhost:${PORT}`);
   });
