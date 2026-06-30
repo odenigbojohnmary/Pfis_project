@@ -30,6 +30,9 @@ async function createApp(config = DB_CONFIG) {
   });
 
   app.use("/api/public", require("./routes/public"));
+  app.use("/api/auth", require("./routes/auth"));
+  app.use("/api/staff", require("./routes/staff"));
+  app.use("/api/assets", require("./routes/assets"));
   app.use("/api/components", require("./routes/components"));
   app.use("/api/incidents", require("./routes/incidents"));
   app.use("/api/maintenance", require("./routes/maintenance"));
