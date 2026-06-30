@@ -8,6 +8,9 @@
 const express = require("express");
 const router = express.Router();
 // const { notifySubscribers } = require("../notify");
+const { authRequired, requireRole } = require("../auth");
+
+router.use(authRequired);
 
 async function affectedComponents(db, maintenanceId) {
   const [rows] = await db.query(

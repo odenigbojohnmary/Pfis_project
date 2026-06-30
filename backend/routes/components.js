@@ -6,6 +6,9 @@
 
 const express = require("express");
 const router = express.Router();
+const { authRequired, requireRole } = require("../auth");
+
+router.use(authRequired);
 
 router.get("/", async (req, res) => {
   const [rows] = await req.db.query(
@@ -14,7 +17,7 @@ router.get("/", async (req, res) => {
   res.json(rows);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", requireRole("editor", "super_admin"), async (req, res) => {
   const { name, description, group_name = "General", status = "operational", display_order = 0 } = req.body;
   if (!name) return res.status(400).json({ error: "name is required" });
 
@@ -32,7 +35,7 @@ router.get("/:id", async (req, res) => {
   res.json(rows[0]);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireRole("editor", "super_admin"), async (req, res) => {
   const [rows] = await req.db.query("SELECT * FROM components WHERE id = ?", [req.params.id]);
   if (!rows.length) return res.status(404).json({ error: "Component not found" });
   const existing = rows[0];
@@ -53,7 +56,7 @@ router.put("/:id", async (req, res) => {
   res.json({ message: "Component updated" });
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireRole("editor", "super_admin"), async (req, res) => {
   const [result] = await req.db.query("DELETE FROM components WHERE id = ?", [req.params.id]);
   if (!result.affectedRows) return res.status(404).json({ error: "Component not found" });
   res.json({ message: "Component deleted" });

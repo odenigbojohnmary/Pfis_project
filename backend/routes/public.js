@@ -8,6 +8,7 @@
 
 const express = require("express");
 const router = express.Router();
+const { withUptimeWindows } = require("../uptime");
 
 const SEVERITY_ORDER = ["operational", "maintenance", "degraded", "partial_outage", "major_outage"];
 
@@ -44,6 +45,16 @@ router.get("/status", async (req, res) => {
     active_incidents: activeIncidents,
     upcoming_maintenance: maintenance,
   });
+});
+
+// Public uptime feed — no login required. Exposes name/type/status/uptime
+// percentages only; ping_url and check_interval_seconds stay internal.
+router.get("/uptime", async (req, res) => {
+  const [assets] = await req.db.query(
+    "SELECT id, name, description, type, status FROM assets ORDER BY name"
+  );
+  const withUptime = await Promise.all(assets.map((a) => withUptimeWindows(req.db, a)));
+  res.json(withUptime);
 });
 
 module.exports = router;
