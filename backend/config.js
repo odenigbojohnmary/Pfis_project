@@ -14,4 +14,12 @@ const DB_CONFIG = {
   database: process.env.DB_NAME || "statuswatch_db",
 };
 
-module.exports = { DB_CONFIG };
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me-in-production";
+
+const DEFAULT_ADMIN = {
+  name: process.env.ADMIN_NAME || "Default Admin",
+  email: process.env.ADMIN_EMAIL || "admin@statuswatch.local",
+  password: process.env.ADMIN_PASSWORD || "ChangeMe123!",
+};
+
+module.exports = { DB_CONFIG, JWT_SECRET, DEFAULT_ADMIN };
