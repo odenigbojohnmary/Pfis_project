@@ -8,7 +8,7 @@
 
 const express = require("express");
 const router = express.Router();
-// const { notifySubscribers } = require("../notify");
+const { notifySubscribers } = require("../notify");
 const { authRequired, requireRole } = require("../auth");
 
 router.use(authRequired);

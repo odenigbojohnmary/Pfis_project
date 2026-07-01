@@ -37,6 +37,8 @@ async function createApp(config = DB_CONFIG) {
   app.use("/api/components", require("./routes/components"));
   app.use("/api/incidents", require("./routes/incidents"));
   app.use("/api/maintenance", require("./routes/maintenance"));
+  app.use("/api/subscribers", require("./routes/subscribers"));
+  app.use("/api/notifications", require("./routes/notifications"));
   app.use("/api/dashboard", require("./routes/dashboard"));
 
   app.use(express.static(FRONTEND));
