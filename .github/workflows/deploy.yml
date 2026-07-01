@@ -37,7 +37,7 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
-            npm ci --production
+            npm install --production
 
             pm2 restart jmzops || pm2 start server.js --name jmzops
 
