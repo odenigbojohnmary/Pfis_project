@@ -4,7 +4,7 @@
  * automatic uptime check. 
  */
 
-const DEFAULT_INTERVAL_MS = parseInt(process.env.MONITOR_INTERVAL_MS || "60000", 10);
+const DEFAULT_INTERVAL_MS = parseInt(process.env.MONITOR_INTERVAL_MS || "6000", 10);
 const PING_TIMEOUT_MS = 5000;
 
 async function pingAsset(asset) {

@@ -77,6 +77,7 @@ router.delete("/:id", requireRole("editor", "super_admin"), async (req, res) => 
 
 // Manual heartbeat log — for assets without a ping_url, or to record an
 // out-of-band observation (e.g. "I just checked, the DB is down").
+// created with help of claude AI
 router.post("/:id/checks", requireRole("editor", "super_admin"), async (req, res) => {
   const { status, response_time_ms = null } = req.body;
   if (!["up", "down"].includes(status)) {

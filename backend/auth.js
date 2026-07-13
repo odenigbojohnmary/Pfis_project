@@ -4,6 +4,7 @@
  *   - super_admin : everything, including managing staff accounts
  *   - editor      : components, incidents, maintenance, assets, subscribers
  *   - viewer      : read-only access to the admin panel
+ * Got help from Claude on this one
  */
 
 const jwt = require("jsonwebtoken");
