@@ -21,6 +21,8 @@ const TYPES = ["server", "web_app", "database", "domain", "other"];
 
 router.use(authRequired);
 
+// List all assets, with their uptime windows
+// created with help of claude AI
 router.get("/", async (req, res) => {
   const [assets] = await req.db.query("SELECT * FROM assets ORDER BY name");
   const withUptime = await Promise.all(assets.map((a) => withUptimeWindows(req.db, a)));

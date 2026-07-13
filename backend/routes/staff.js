@@ -24,6 +24,7 @@ router.get("/", async (req, res) => {
   res.json(rows);
 });
 
+// Get a single staff member by ID
 router.post("/", async (req, res) => {
   const { name, email, password, role = "viewer" } = req.body;
   if (!name || !email || !password) {
@@ -31,9 +32,11 @@ router.post("/", async (req, res) => {
   }
   if (!ROLES.includes(role)) return res.status(400).json({ error: "invalid role" });
 
+  // Check if the email is already in use
   const [existing] = await req.db.query("SELECT id FROM staff WHERE email = ?", [email]);
   if (existing.length) return res.status(409).json({ error: "Email already in use" });
 
+  // Hash the password before storing it in the database
   const password_hash = await hashPassword(password);
   const [result] = await req.db.query(
     "INSERT INTO staff (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
@@ -42,12 +45,13 @@ router.post("/", async (req, res) => {
   res.status(201).json({ id: result.insertId, message: "Staff member created" });
 });
 
+// Get a single staff member by ID
+// Used help from Claude to implement this
 router.put("/:id", async (req, res) => {
   const [rows] = await req.db.query("SELECT * FROM staff WHERE id = ?", [req.params.id]);
   if (!rows.length) return res.status(404).json({ error: "Staff member not found" });
   const existing = rows[0];
   const { name, email, password, role } = req.body;
-
   if (role && !ROLES.includes(role)) return res.status(400).json({ error: "invalid role" });
 
   if (existing.role === "super_admin" && role && role !== "super_admin") {
@@ -56,6 +60,8 @@ router.put("/:id", async (req, res) => {
     }
   }
 
+  // If a new password is provided, hash it; otherwise, keep the existing hash
+  // Used help from Claude to implement this
   const password_hash = password ? await hashPassword(password) : existing.password_hash;
   await req.db.query(
     "UPDATE staff SET name = ?, email = ?, password_hash = ?, role = ? WHERE id = ?",
