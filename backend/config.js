@@ -1,6 +1,4 @@
 /**
- * config.js
- * ---------
  * Database configuration loaded from environment variables.
  */
 
@@ -14,6 +12,11 @@ const DB_CONFIG = {
   database: process.env.DB_NAME || "jmzops_db",
 };
 
+const TEST_DB_CONFIG = {
+  ...DB_CONFIG,
+  database: process.env.DB_TEST || "statuswatch_test_db",
+};
+
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me-in-production";
 
 const DEFAULT_ADMIN = {
@@ -22,4 +25,4 @@ const DEFAULT_ADMIN = {
   password: process.env.ADMIN_PASSWORD || "ChangeMe123!",
 };
 
-module.exports = { DB_CONFIG, JWT_SECRET, DEFAULT_ADMIN };
+module.exports = { DB_CONFIG,TEST_DB_CONFIG, JWT_SECRET, DEFAULT_ADMIN };

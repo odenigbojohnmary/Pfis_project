@@ -172,8 +172,7 @@ async function initDB(config) {
 
 /**
  * Ensures there is always at least one super_admin to log in with.
- * Runs every time initDB() runs but only inserts when the staff table is
- * empty, so it's safe to call on every server start.
+ * Runs every time initDB() runs but only inserts when the staff table is empty.
  */
 async function seedDefaultAdmin(dbconn) {
   const [rows] = await dbconn.query("SELECT COUNT(*) AS count FROM staff");

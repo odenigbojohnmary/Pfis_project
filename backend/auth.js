@@ -1,6 +1,4 @@
 /**
- * auth.js
- * -------
  * Password hashing, JWT issuing/verification, and Express middleware for
  * the staff/admin side of the app. Three roles:
  *   - super_admin : everything, including managing staff accounts
