@@ -6,9 +6,6 @@
  *   - super_admin : everything, including managing staff accounts
  *   - editor      : components, incidents, maintenance, assets, subscribers
  *   - viewer      : read-only access to the admin panel
- *
- * The public status page and uptime feed (routes/public.js) never go
- * through this — they're intentionally open to everyone.
  */
 
 const jwt = require("jsonwebtoken");
