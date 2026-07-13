@@ -1,11 +1,5 @@
 /**
- * server.js
- * ---------
- * Express application entry point for StatusWatch (JS version).
- *
- * Exposes a createApp(config) factory — mirroring the Python version's
- * create_app() — so tests can build an app against a separate test
- * database instead of the real one.
+ * Express application entry point for JmZOps (JS version).
  */
 
 const express = require("express");

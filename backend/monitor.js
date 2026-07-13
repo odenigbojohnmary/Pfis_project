@@ -1,14 +1,7 @@
 /**
- * monitor.js
- * ----------
  * Background uptime monitor. On an interval, pings every asset that has a
  * ping_url configured (HTTP GET, 5s timeout) and logs the result as an
- * automatic uptime check. Assets with no ping_url (e.g. a bare-metal
- * server with nothing to HTTP-ping) rely entirely on the manual heartbeat
- * log instead (POST /api/assets/:id/checks).
- *
- * Only started from server.js's start() — never from createApp(), so
- * Jest tests don't spawn background timers.
+ * automatic uptime check. 
  */
 
 const DEFAULT_INTERVAL_MS = parseInt(process.env.MONITOR_INTERVAL_MS || "60000", 10);

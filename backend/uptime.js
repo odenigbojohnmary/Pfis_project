@@ -1,6 +1,4 @@
 /**
- * uptime.js
- * ---------
  * Shared helper for computing rolling uptime percentages from the
  * uptime_checks log. Used by both the admin assets route and the public
  * uptime feed (routes/public.js).

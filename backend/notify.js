@@ -1,6 +1,4 @@
 /**
- * notify.js
- * ---------
  * Subscriber notification helper. Writes every notification to the
  * notifications table (so the admin log is always complete), then
  * optionally sends a real email via SMTP if SMTP_HOST is configured.
