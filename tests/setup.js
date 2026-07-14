@@ -1,15 +1,14 @@
 /**
  * setup.js
  * --------
- * Shared Jest helper. Key design decision: createApp() (and therefore
- * initDB()) is called ONCE per process and cached — not once per test.
- * Calling initDB() before every test was opening a fresh MySQL connection
- * 48 times and exhausting the server's max_connections limit.
+ * Shared Jest helper. createApp() / initDB() runs ONCE for the whole test
+ * process (cached in _app). Without this, Jest calling buildTestApp() in
+ * beforeEach opened a fresh MySQL connection per test and hit max_connections.
  *
- * What still happens before every test (inside buildTestApp):
- *   - All tables are truncated (full isolation)
- *   - The default super_admin is re-seeded (wiped by the truncation)
- *   - A fresh login is performed to get a valid JWT for that test
+ * What happens before every individual test:
+ *   1. All tables are truncated  → clean slate
+ *   2. Default super_admin re-inserted → wiped by the truncation above
+ *   3. Login request made → fresh JWT for that test
  */
 
 const request = require("supertest");
@@ -31,7 +30,7 @@ const TABLES = [
   "staff",
 ];
 
-// Cache the app + pool so initDB only runs once for the entire test run.
+// Created once, reused for every test — prevents connection exhaustion.
 let _app = null;
 
 async function getApp() {
@@ -45,7 +44,6 @@ async function buildTestApp() {
   const app = await getApp();
   const pool = app.locals.pool;
 
-  // Wipe all data for a clean slate, then re-seed the admin account.
   await pool.query("SET FOREIGN_KEY_CHECKS = 0");
   for (const table of TABLES) {
     await pool.query(`TRUNCATE TABLE ${table}`);

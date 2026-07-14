@@ -8,6 +8,7 @@ const { hashPassword } = require("./auth");
 const { DEFAULT_ADMIN } = require("./config");
 
 const dbpools = {};
+const _initialized = new Set(); // tracks which databases have already had initDB run
 
 function dbconnPool(config) {
   const key = config.database;
@@ -26,6 +27,11 @@ function dbconnPool(config) {
 }
 
 async function initDB(config) {
+  // Skip if already initialised — prevents "Too many connections" when Jest
+  // calls createApp() (and therefore initDB()) once per test in beforeEach.
+  if (_initialized.has(config.database)) return;
+  _initialized.add(config.database);
+
   const dbconn = await mysql.createConnection({
     host: config.host,
     port: config.port,

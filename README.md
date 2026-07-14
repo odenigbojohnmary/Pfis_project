@@ -145,7 +145,7 @@ The frontend never queries MySQL directly — every read and write goes through 
 ## Project Structure
 
 ```
-JmZOps/
+Pfis_project/
 ├── backend/
 │   ├── server.js              # createApp() factory — registers routes, serves frontend
 │   ├── db.js                  # MySQL connection pools (keyed by DB name) + schema init
@@ -183,7 +183,7 @@ JmZOps/
 
 ### Step 1 — Navigate to the folder
 ```bash
-cd JmzOps-js
+cd Pfis_project
 ```
 
 ### Step 2 — Install dependencies
