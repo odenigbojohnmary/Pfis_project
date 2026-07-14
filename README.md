@@ -412,7 +412,3 @@ Specifically, Claude assisted with:
 - Resolving the issues faced in some of the applicatication fixture.
 - Writing some test cases.
 - Drafting the README.md 
-
-**All AI-assisted code was:**
-- Reviewed, Modified and adapted to fit the specific project requirements I created
-- Committed incrementally alongside original student-written code
