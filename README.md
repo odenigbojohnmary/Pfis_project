@@ -1,28 +1,10 @@
-# JmZOps
+# JmZOps APP
 
-**A public status-page / incident-communication system, in the style of status.io and Atlassian Statuspage.**
-Built with Node.js, Express.js, MySQL, and Vanilla JavaScript.
-
----
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Why This Project](#why-this-project)
-3. [System Requirements](#system-requirements)
-4. [Tech Stack](#tech-stack)
-5. [Architecture](#architecture)
-6. [Database Schema](#database-schema)
-7. [Project Structure](#project-structure)
-8. [Setup & Installation](#setup--installation)
-9. [Running the Application](#running-the-application)
-10. [API Endpoints](#api-endpoints)
-11. [Features](#features)
-12. [Running Tests](#running-tests)
-13. [Comparable Products](#comparable-products)
-14. [Learning Resources & Documentation Referenced](#Learning Resources & Documentation Referenced)
-15. [Generative AI Assistance](#Generative AI Assistance)
-16. [Code Patterns & Conventions Referenced](#Code Patterns & Conventions Referenced)
+**Student Name: Nzubechukwu Johnmary Odenigbo**
+**Student Number: 20083494**
+**Module: B9IS123 - Programming for Information Systems**  
+**Lecturer: Paul Laird**
+**Submission Date: July 14, 2026**
 
 ---
 
@@ -206,7 +188,7 @@ JmZOps/
 
 ### Step 1 — Navigate to the folder
 ```bash
-cd statuswatch-js
+cd JmzOps-js
 ```
 
 ### Step 2 — Install dependencies
@@ -224,14 +206,14 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_password_here
-DB_NAME=statuswatch_db
-DB_TEST=statuswatch_test_db
+DB_NAME=JmzOps_db
+DB_TEST=JmzOps_test_db
 PORT=5050
 JWT_SECRET=dev-secret-change-me-in-production
 ADMIN_NAME=Default Admin
-ADMIN_EMAIL=admin@statuswatch.local
-ADMIN_PASSWORD=ChangeMe123!
-MONITOR_INTERVAL_MS=60000
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+MONITOR_INTERVAL_MS=6000
 ```
 
 On first run, since the `staff` table is empty, the app automatically creates the super_admin account above — **log in with it, then change the password** via the Staff section of the admin panel (or by re-issuing your own staff record). There's no self-service registration: every other staff account has to be created by a super_admin.
@@ -268,9 +250,6 @@ The **public status page and the public uptime feed never require login** — `G
 
 A safety guard in `routes/staff.js` blocks deleting or demoting the last remaining `super_admin`, so the admin panel can never be locked out entirely.
 
-## API Endpoints
-
-Identical contract to the Python version, plus the auth/staff/assets additions below:
 
 ### Public (no login, ever)
 | Method | Endpoint            | Description                                                          |
@@ -352,9 +331,6 @@ Full CRUD across all entities, incident timelines, component auto-sync (degrade 
 
 ---
 
-### Simulated Subscriber Notifications
-Real status-page products send emails via a provider (SendGrid, Postmark, etc.). Since this is an academic project without production email infrastructure or API keys, every notification "send" is instead persisted to a `notifications` table and surfaced in the admin panel's Notification Log — demonstrating the feature end-to-end without external dependencies.
-
 ### Admin Dashboard
 Live aggregate stats: component health breakdown, total/open incidents, average resolution time (via `TIMESTAMPDIFF`), upcoming maintenance count, subscriber count, and total notifications sent.
 
@@ -386,7 +362,7 @@ Tests use a separate `JmzOps_test_db` database. All tables are truncated before 
 | Better Uptime / Better Stack | Combined uptime monitoring + status pages                       |
 | Instatus                  | Lightweight, fast status page tool                                |
 
-StatusWatch reimplements the core feature set of these products (public status page, incident timeline, scheduled maintenance, subscriber notifications) as a self-contained academic CRUD/API exercise.
+JmzOps reimplements the core feature set of these products (public status page, incident timeline, scheduled maintenance, subscriber notifications) as a self-contained academic CRUD/API exercise.
 
 ---
 
