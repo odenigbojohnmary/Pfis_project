@@ -14,7 +14,7 @@ const DB_CONFIG = {
 
 const TEST_DB_CONFIG = {
   ...DB_CONFIG,
-  database: process.env.DB_TEST || "statuswatch_test_db",
+  database: process.env.DB_TEST || "status",
 };
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me-in-production";

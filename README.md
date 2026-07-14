@@ -20,7 +20,9 @@ Built with Node.js, Express.js, MySQL, and Vanilla JavaScript.
 11. [Features](#features)
 12. [Running Tests](#running-tests)
 13. [Comparable Products](#comparable-products)
-14. [Attributions](#attributions)
+14. [Learning Resources & Documentation Referenced](#Learning Resources & Documentation Referenced)
+15. [Generative AI Assistance](#Generative AI Assistance)
+16. [Code Patterns & Conventions Referenced](#Code Patterns & Conventions Referenced)
 
 ---
 
@@ -388,10 +390,53 @@ StatusWatch reimplements the core feature set of these products (public status p
 
 ---
 
-## Attributions
+## npm Libraries & Frameworks
 
-See `ATTRIBUTIONS.md` for a full list of libraries, learning resources, and AI assistance used.
+| Package         | Version  | Purpose                                        | Licence    | URL                                          |
+|-----------------|----------|--------------------------------------------------|------------|-------------------------------------------------|
+| express         | ^4.19.2  | Web framework — REST API routing and middleware   | MIT        | https://expressjs.com                            |
+| mysql2          | ^3.10.0  | MySQL driver with Promise/async-await support    | MIT        | https://github.com/sidorares/node-mysql2         |
+| cors            | ^2.8.5   | Cross-Origin Resource Sharing middleware          | MIT        | https://github.com/expressjs/cors                |
+| dotenv          | ^16.4.5  | Loads environment variables from `.env` file      | BSD-2      | https://github.com/motdotla/dotenv               |
+| nodemailer      | ^6.9.14  | Sends subscriber notification emails over SMTP    | MIT        | https://nodemailer.com                           |
+| jsonwebtoken    | ^9.0.2   | Signs/verifies JWTs for staff login sessions      | MIT        | https://github.com/auth0/node-jsonwebtoken       |
+| bcryptjs        | ^2.4.3   | Hashes staff passwords before storing them        | MIT        | https://github.com/dcodeIO/bcrypt.js              |
+| jest            | ^29.7.0  | JavaScript testing framework                       | MIT        | https://jestjs.io                                  |
+| supertest       | ^7.0.0   | HTTP assertions for testing Express routes         | MIT        | https://github.com/ladjs/supertest                |
 
-All external resources are used in accordance with their respective licences.
-Any code developed with GenAI assistance has been reviewed, understood, and modified
-by the student prior to submission, as required by the DBS Academic Integrity Policy.
+Node.js built-in modules used (no external install required):
+- `path` — file path resolution for serving static frontend files
+
+---
+
+## Learning Resources & Documentation Referenced
+
+| Resource                                  | URL                                                                 | Used For                              |
+|-------------------------------------------|-----------------------------------------------------------------------|------------------------------------------|
+| Express.js Official Documentation         | https://expressjs.com/en/4x/api.html                                | Routing, middleware, static files        |
+| mysql2 README                             | https://github.com/sidorares/node-mysql2#readme                     | Connection pool, prepared statements     |
+| MDN Web Docs — Fetch API                  | https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API           | Frontend API calls                        |
+| MDN Web Docs — async/await                | https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Promises | Async patterns               |
+| Jest Documentation                        | https://jestjs.io/docs/getting-started                                | Test structure, mocking                   |
+| Supertest GitHub README                   | https://github.com/ladjs/supertest#readme                            | HTTP integration testing                  |
+| Node.js dotenv Documentation              | https://github.com/motdotla/dotenv#readme                            | Loading .env credentials                  |
+| MySQL 8 Reference Manual                  | https://dev.mysql.com/doc/refman/8.0/en/                             | SQL syntax, ENUM types, FK constraints    |
+| Atlassian Statuspage public documentation | https://www.atlassian.com/software/statuspage                        | Reference for status-page feature set     |
+| status.io public product pages           | https://www.status.io                                                  | Reference for the product category this project is modelled on |
+
+---
+
+## Generative AI Assistance
+
+Portions of this project were developed with assistance from **Claude** (Anthropic).
+
+Specifically, Claude assisted with:
+- System architecture design — modelling the status.io/Statuspage feature set (components, incidents, incident timeline, maintenance, subscriber notifications) as a relational schema
+- Implementation of the authentication part of the application.
+- Resolving the issues faced in some of the applicatication fixture.
+- Writing some test cases.
+- Drafting the README.md 
+
+**All AI-assisted code was:**
+- Reviewed, Modified and adapted to fit the specific project requirements I created
+- Committed incrementally alongside original student-written code

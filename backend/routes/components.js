@@ -8,8 +8,10 @@ const express = require("express");
 const router = express.Router();
 const { authRequired, requireRole } = require("../auth");
 
+
 router.use(authRequired);
 
+//
 router.get("/", async (req, res) => {
   const [rows] = await req.db.query(
     "SELECT * FROM components ORDER BY group_name, display_order, id"
