@@ -1,6 +1,4 @@
 /**
- * db.js
- * -----
  * MySQL connection pool (keyed by database name, so the real DB pool and
  * the test DB pool used by Jest never collide) plus schema initialisation.
  */

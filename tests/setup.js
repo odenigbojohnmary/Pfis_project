@@ -1,11 +1,15 @@
 /**
  * setup.js
  * --------
- * Shared Jest helper: builds an app against the test database, truncates
- * every table before each test for full isolation, then re-seeds and logs
- * in as the default super_admin so tests can call the now-protected admin
- * routes. Returns an authedClient() helper so test files don't need to
- * repeat the Authorization header on every request.
+ * Shared Jest helper. Key design decision: createApp() (and therefore
+ * initDB()) is called ONCE per process and cached — not once per test.
+ * Calling initDB() before every test was opening a fresh MySQL connection
+ * 48 times and exhausting the server's max_connections limit.
+ *
+ * What still happens before every test (inside buildTestApp):
+ *   - All tables are truncated (full isolation)
+ *   - The default super_admin is re-seeded (wiped by the truncation)
+ *   - A fresh login is performed to get a valid JWT for that test
  */
 
 const request = require("supertest");
@@ -27,19 +31,27 @@ const TABLES = [
   "staff",
 ];
 
+// Cache the app + pool so initDB only runs once for the entire test run.
+let _app = null;
+
+async function getApp() {
+  if (!_app) {
+    _app = await createApp(TEST_DB_CONFIG);
+  }
+  return _app;
+}
+
 async function buildTestApp() {
-  const app = await createApp(TEST_DB_CONFIG);
+  const app = await getApp();
   const pool = app.locals.pool;
 
+  // Wipe all data for a clean slate, then re-seed the admin account.
   await pool.query("SET FOREIGN_KEY_CHECKS = 0");
   for (const table of TABLES) {
     await pool.query(`TRUNCATE TABLE ${table}`);
   }
   await pool.query("SET FOREIGN_KEY_CHECKS = 1");
 
-  // initDB() (called inside createApp, above) already seeded a default
-  // super_admin, but truncating the staff table just wiped it out again —
-  // re-seed it directly so every test starts with a known admin to log in as.
   const password_hash = await hashPassword(DEFAULT_ADMIN.password);
   await pool.query(
     "INSERT INTO staff (name, email, password_hash, role) VALUES (?, ?, ?, 'super_admin')",
@@ -53,7 +65,7 @@ async function buildTestApp() {
   return { app, token: login.body.token };
 }
 
-/** Returns a request client that automatically attaches the Bearer token. */
+/** Returns a supertest client that automatically attaches the Bearer token. */
 function authedClient(app, token) {
   const agent = request(app);
   const withAuth = (req) => (token ? req.set("Authorization", `Bearer ${token}`) : req);

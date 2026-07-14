@@ -11,6 +11,7 @@ const { startMonitor } = require("./monitor");
 
 const FRONTEND = path.join(__dirname, "..", "frontend");
 
+// Creates an Express app with all routes and middleware configured, and a MySQL connection pool attached to req.db.
 async function createApp(config = DB_CONFIG) {
   await initDB(config);
   const pool = dbconnPool(config);

@@ -1,13 +1,13 @@
 /**
  * Subscriber notification helper. Writes every notification to the
- * notifications table (so the admin log is always complete), then
- * optionally sends a real email via SMTP if SMTP_HOST is configured.
+ * notifications table.
  */
 
 const nodemailer = require("nodemailer");
 
 let transporter = null;
 
+// Lazily creates a nodemailer transporter if SMTP_HOST is set in the environment.
 function getTransporter() {
   if (!transporter && process.env.SMTP_HOST) {
     transporter = nodemailer.createTransport({
@@ -24,6 +24,7 @@ function getTransporter() {
   return transporter;
 }
 
+// Sends a notification to all subscribers, logging each attempt in the notifications table.
 async function notifySubscribers(pool, message, { incidentId = null, maintenanceId = null } = {}) {
   const [subscribers] = await pool.query("SELECT id, email FROM subscribers");
   let sent = 0;
