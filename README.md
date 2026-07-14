@@ -15,11 +15,6 @@ JmZOps lets a company publish the live operational status of its services to the
 It mirrors the core feature set of commercial status-page products such as **status.io**, **Atlassian Statuspage**, and **Better Uptime**: a public status page, an incident timeline, scheduled maintenance, and subscriber notifications.
 
 This is the JavaScript/Express project and the frontend communicate through fetch() calls.
----
-
-## Why This Project
-
-Status pages are used everywhere in most SaaS industry — every major cloud provider, API, and SaaS tool has their own status page dashboard (eg: Amazon, GitHub, Stripe,Cloudflare, etc.). They are an example of a CRUD-heavy and API-driven information system: incidents and components are created/read/updated/deleted constantly, and the public-facing view must be perfectly in sync with the admin actions at the backend.
 
 ---
 
